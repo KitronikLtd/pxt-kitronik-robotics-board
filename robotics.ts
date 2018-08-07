@@ -157,8 +157,8 @@ namespace Kitronik_Robotics_Board
      * @param servo Which servo to set
 	 * @param degrees the angle to set the servo to
      */
-    //% subcategory=Servos
     //% group=Servos
+    //% subcategory=Servos
     //% blockId=kitronik_I2Cservo_write
     //% block="set%Servo|to%degrees|degrees"
     //% weight=100 blockGap=8
