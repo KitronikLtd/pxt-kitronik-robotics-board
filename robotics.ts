@@ -2,6 +2,7 @@
  * Blocks for driving the Kitronik All-in-one Robotics Board
  */
 //% weight=100 color=#00A654 icon="\uf1b6" block="Robotics"
+//% groups='["Servos", "Motors"]'
 namespace Kitronik_Robotics_Board
 {	
     //Constants 
@@ -157,6 +158,7 @@ namespace Kitronik_Robotics_Board
 	 * @param degrees the angle to set the servo to
      */
     //% subcategory=Servos
+    //% group=Servos
     //% blockId=kitronik_I2Cservo_write
     //% block="set%Servo|to%degrees|degrees"
     //% weight=100 blockGap=8
@@ -196,6 +198,7 @@ namespace Kitronik_Robotics_Board
      * @param speed how fast to spin the motor
      */
     //% subcategory=Motors
+    //% group=Motors
     //% blockId=kitronik_motor_on
     //% block="%motor|on direction %dir|speed %speed"
     //% weight=100 blockGap=8
@@ -269,7 +272,8 @@ namespace Kitronik_Robotics_Board
      * Turns off the specified motor.
      * @param motor which motor to turn off
      */
-    //%subcategory=Motors
+    //% subcategory=Motors
+    //% group=Motors
     //% blockId=kitronik_motor_off
     //% weight=95 blockGap=8
     //%block="turn off %motor"
@@ -337,6 +341,7 @@ namespace Kitronik_Robotics_Board
      * @param angle how far to turn the motor relative to start
      */
     //% subcategory=Motors
+    //% group=Motors
     //% blockId=kitronik_stepper_motor_turn_angle
     //% block="%stepper|turn %dir|%angle|degrees"
     //% weight=90 blockGap=8
@@ -362,6 +367,7 @@ namespace Kitronik_Robotics_Board
      * @param stepperSteps how many steps to turn the motor
      */
     //% subcategory=Motors
+    //% group=Motors
     //% blockId=kitronik_stepper_motor_turn_steps
     //% block="%stepper|turn %dir|%steps|steps"
     //% weight=85 blockGap=8
