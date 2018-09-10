@@ -4,7 +4,7 @@
 //     Motors connected to outputs 3 & 4 will turn in opposite directions at different speeds
 //     4 servos will turn one direction, 4 will turn the other
 // On pressing button B on the micro:bit: 
-//     A stepper motor connected to motor outputs 1 & 2 will turn 180 steps in the opposite direction to button A
+//     A stepper motor connected to motor outputs 1 & 2 will turn 100 steps in the opposite direction to button A
 //     Motors connected to outputs 3 & 4 will turn off
 //     8 servos will set to the 90 degree position
 // On pressing button A+B on the micro:bit:

@@ -75,12 +75,13 @@ namespace Kitronik_Robotics_Board
         Board4 = 0x6F
 	}
 
-    // chipAddress can be changed in 'JavaScript' mode if you have altered the I2C address of the board:
+    // chipAddress can be changed in 'JavaScript' mode if the I2C address of the board has been altered:
     // 'Kitronik_Robotics_Board.chipAddress = Kitronik_Robotics_Board.BoardAddresses.Boardx' ('x' is one of the BoardAddresses)
     export let chipAddress = BoardAddresses.Board1 //default Kitronik Chip address for All-in-One Robotics Board
 
     let initalised = false //a flag to allow us to initialise without explicitly calling the secret incantation
-    let motorSteps = 200 //Default value for the majority of stepper motors
+    export let motorSteps = 200 //Default value for the majority of stepper motors, can be altered if neccessary for a particular stepper motor:
+    // 'Kitronik_Robotics_Board.motorSteps = y' ('y' is the total number of steps for a complete rotation, see stepper motor data sheet)
 
     //Trim the servo pulses. These are here for advanced users, and not exposed to blocks.
     //It appears that servos I've tested are actually expecting 0.5 - 2.5mS pulses, 
