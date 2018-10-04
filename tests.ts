@@ -1,4 +1,5 @@
 // Test file for the Kitronik All-in-one Robotics Board
+// On start up, Stepper 1 will be set to have 200 steps in one full rotation
 // On pressing button A on the micro:bit: 
 //     A stepper motor connected to motor outputs 1 & 2 will turn 180 degrees
 //     Motors connected to outputs 3 & 4 will turn in opposite directions at different speeds
@@ -38,3 +39,4 @@ input.onButtonPressed(Button.B, () => {
 input.onButtonPressed(Button.AB, () => {
     Kitronik_Robotics_Board.allOff()
 })
+Kitronik_Robotics_Board.setStepperMotorSteps(Kitronik_Robotics_Board.StepperMotors.Stepper1, 200)

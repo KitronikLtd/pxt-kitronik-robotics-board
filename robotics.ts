@@ -66,7 +66,7 @@ namespace Kitronik_Robotics_Board
         Reverse
     }
 
-    // The Robotics board can be configured to use differnet I2C addresses, these are all listed here.
+    // The Robotics board can be configured to use different I2C addresses, these are all listed here.
     // Board1 is the default value (set as the CHIP_ADDRESS)
 	export enum BoardAddresses{
 		Board1 = 0x6C,
@@ -80,8 +80,8 @@ namespace Kitronik_Robotics_Board
     export let chipAddress = BoardAddresses.Board1 //default Kitronik Chip address for All-in-One Robotics Board
 
     let initalised = false //a flag to allow us to initialise without explicitly calling the secret incantation
-    export let motorSteps = 200 //Default value for the majority of stepper motors, can be altered if neccessary for a particular stepper motor:
-    // 'Kitronik_Robotics_Board.motorSteps = y' ('y' is the total number of steps for a complete rotation, see stepper motor data sheet)
+    export let stepper1Steps = 200 //Default value for the majority of stepper motors; can be altered via a block if neccessary for a particular stepper motor
+    export let stepper2Steps = 200 //Default value for the majority of stepper motors; can be altered via a block if neccessary for a particular stepper motor
 
     //Trim the servo pulses. These are here for advanced users, and not exposed to blocks.
     //It appears that servos I've tested are actually expecting 0.5 - 2.5mS pulses, 
@@ -120,7 +120,7 @@ namespace Kitronik_Robotics_Board
 
 	/*
 		This secret incantation sets up the PCA9865 I2C driver chip to be running at 50Hz pulse repetition, and then sets the 16 output registers to 1.5mS - centre travel.
-		It should not need to be called directly be a user - the first servo write will call it.
+		It should not need to be called directly be a user - the first servo or motor write will call it automatically.
 	*/
 	function secretIncantation(): void {
         let buf = pins.createBuffer(2)
@@ -220,6 +220,30 @@ namespace Kitronik_Robotics_Board
                 if (outputVal > 0xFF) {
                     highByte = true
                 }
+                buf[0] = motor + 4
+                buf[1] = outputVal
+                pins.i2cWriteBuffer(chipAddress, buf, false)
+                if (highByte) {
+                    buf[0] = motor + 5
+                    buf[1] = outputVal/256
+                }
+                else {
+                    buf[0] = motor + 5
+                    buf[1] = 0x00
+                }
+                pins.i2cWriteBuffer(chipAddress, buf, false)
+
+                buf[0] = motor
+                buf[1] = 0x00
+                pins.i2cWriteBuffer(chipAddress, buf, false)
+                buf[0] = motor + 1
+                buf[1] = 0x00
+                pins.i2cWriteBuffer(chipAddress, buf, false)
+                break
+            case MotorDirection.Reverse:
+                if (outputVal > 0xFF) {
+                    highByte = true
+                }
 
                 buf[0] = motor
                 buf[1] = outputVal
@@ -239,30 +263,6 @@ namespace Kitronik_Robotics_Board
                 buf[1] = 0x00
                 pins.i2cWriteBuffer(chipAddress, buf, false)
                 buf[0] = motor + 5
-                buf[1] = 0x00
-                pins.i2cWriteBuffer(chipAddress, buf, false)
-                break
-            case MotorDirection.Reverse:
-                if (outputVal > 0xFF) {
-                    highByte = true
-                }
-                buf[0] = motor + 4
-                buf[1] = outputVal
-                pins.i2cWriteBuffer(chipAddress, buf, false)
-                if (highByte) {
-                    buf[0] = motor + 5
-                    buf[1] = outputVal/256
-                }
-                else {
-                    buf[0] = motor + 5
-                    buf[1] = 0x00
-                }
-                pins.i2cWriteBuffer(chipAddress, buf, false)
-
-                buf[0] = motor
-                buf[1] = 0x00
-                pins.i2cWriteBuffer(chipAddress, buf, false)
-                buf[0] = motor + 1
                 buf[1] = 0x00
                 pins.i2cWriteBuffer(chipAddress, buf, false)
                 break
@@ -326,12 +326,24 @@ namespace Kitronik_Robotics_Board
         }
     }
 
-    // Set the number of steps per full rotation for a stepper motor
-    // motorSteps is defaulted to 200
-    // This function can be called in the 'JavaScript' mode by writing: 
-    // 'Kitronik_Robotics_Board.setStepperMotorSteps(x)' where 'x' is the new number of steps
-    export function setStepperMotorSteps(stepperSteps: number): void {
-        motorSteps = stepperSteps
+    /**
+     * Set the number of steps per full rotation for a stepper motor
+     * motorSteps is defaulted to 200
+     * @param stepper which stepper motor to turn on
+     * @param steps number of steps for a full rotation, eg: 200
+     */
+    //% subcategory=Settings
+    //% group=Settings
+    //% blockId=kitronik_set_stepper_steps
+    //% block="%stepper|has %steps|steps in one full rotation"
+    //% weight=100 blockGap=8
+    export function setStepperMotorSteps(stepper: StepperMotors, steps: number): void {
+        if (stepper == StepperMotors.Stepper1) {
+            Kitronik_Robotics_Board.stepper1Steps = steps
+        }
+        else {
+            Kitronik_Robotics_Board.stepper2Steps = steps
+        }
     }
 
     /**
@@ -349,13 +361,20 @@ namespace Kitronik_Robotics_Board
     //% angle.min=1 angle.max=360
     export function stepperMotorTurnAngle(stepper: StepperMotors, dir: MotorDirection, angle: number): void 
     {
+        let angleToSteps = 0
+
         if (initalised == false) 
         {
             secretIncantation()
         }
 
-        //convert angle to motor steps
-        let angleToSteps = pins.map(angle, 1, 360, 1, motorSteps) 
+        //convert angle to motor steps, depends on which stepper is being turned to set the number of steps for a full rotation
+        if (stepper == StepperMotors.Stepper1) {
+            angleToSteps = pins.map(angle, 1, 360, 1, stepper1Steps)
+        }
+        else {
+            angleToSteps = pins.map(angle, 1, 360, 1, stepper2Steps)
+        } 
 
         turnStepperMotor(stepper, dir, angleToSteps)
     }
@@ -372,7 +391,6 @@ namespace Kitronik_Robotics_Board
     //% blockId=kitronik_stepper_motor_turn_steps
     //% block="%stepper|turn %dir|%steps|steps"
     //% weight=85 blockGap=8
-    //% step.min=1 step.max=motorSteps
     export function stepperMotorTurnSteps(stepper: StepperMotors, dir: MotorDirection, stepperSteps: number): void 
     {
         if (initalised == false) 
@@ -384,110 +402,72 @@ namespace Kitronik_Robotics_Board
     }
 
     // The function called to actually turn the stepper motor a set number of steps
+    // This function uses a finite state machine (stepStage) to set each motor output to energise the coils of the stepper motor
+    // in the correct sequence in order to continuously drive the stepper motor in a set direction
+    // Each stepStage value (1-4) corresponds to particular motor outputs and directions being active (for either stepper output)
     function turnStepperMotor(stepper: StepperMotors, dir: MotorDirection, steps: number): void {
         let stepCounter = 0
-        let stepStage1 = 1
-        let stepStage2 = 1 
-        switch (stepper) 
-        {
-            case StepperMotors.Stepper1:
-                while (stepCounter < steps) 
-                {
-                    switch (stepStage1) 
-                    {
-                        case 1:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor1, Kitronik_Robotics_Board.MotorDirection.Forward, 100)
-                            basic.pause(20)
-                            break
-                        case 2:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor2, Kitronik_Robotics_Board.MotorDirection.Reverse, 100)
-                            basic.pause(20)
-                            break
-                        case 3:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor1, Kitronik_Robotics_Board.MotorDirection.Reverse, 100)
-                            basic.pause(20)
-                            break
-                        case 4:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor2, Kitronik_Robotics_Board.MotorDirection.Forward, 100)
-                            basic.pause(20)
-                            break
-                    }
+        let stepStage = 1 //stepStage determines which coils in the stepper motor will be energised (order is very important to ensure actual turning)
+        let currentDirection = 0
+        let currentMotor = 0
 
-                    switch (dir) 
-                    {
-                        case MotorDirection.Forward:
-                            if (stepStage1 == 4) 
-                            {
-                                stepStage1 = 1
-                            }
-                            else 
-                            {
-                                stepStage1 += 1
-                            }
-                            break
-                        case MotorDirection.Reverse:
-                            if (stepStage1 == 1) 
-                            {
-                                stepStage1 = 4
-                            }
-                            else 
-                            {
-                                stepStage1 -= 1
-                            }
-                            break
-                    }
-                    stepCounter += 1
+        // Loop to run until the number of motor steps set by the user is reached
+        while (stepCounter < steps) {
+            // This section uses the current stepStage and user selected Stepper Motor to set which Robotics Board Motor Output Address should be used
+            if (stepStage == 1 || stepStage == 3) {
+                if (stepper == StepperMotors.Stepper1) {
+                    currentMotor = Kitronik_Robotics_Board.Motors.Motor1
                 }
-                break
-            case StepperMotors.Stepper2:
-                while (stepCounter < steps) 
-                {
-                    switch (stepStage2) 
-                    {
-                        case 1:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor3, Kitronik_Robotics_Board.MotorDirection.Forward, 100)
-                            basic.pause(20)
-                            break
-                        case 2:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor4, Kitronik_Robotics_Board.MotorDirection.Reverse, 100)
-                            basic.pause(20)
-                            break
-                        case 3:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor3, Kitronik_Robotics_Board.MotorDirection.Reverse, 100)
-                            basic.pause(20)
-                            break
-                        case 4:
-                            Kitronik_Robotics_Board.motorOn(Kitronik_Robotics_Board.Motors.Motor4, Kitronik_Robotics_Board.MotorDirection.Forward, 100)
-                            basic.pause(20)
-                            break
-                    }
+                else {
+                    currentMotor = Kitronik_Robotics_Board.Motors.Motor3
+                }
+            }
+            else {
+                if (stepper == StepperMotors.Stepper1) {
+                    currentMotor = Kitronik_Robotics_Board.Motors.Motor2
+                }
+                else {
+                    currentMotor = Kitronik_Robotics_Board.Motors.Motor4
+                }
+            }
 
-                    switch (dir) 
+            // This section uses the current stepStage to set which direction the Robotics Board Motor Output should be driven
+            if (stepStage == 1 || stepStage == 4) {
+                 currentDirection = Kitronik_Robotics_Board.MotorDirection.Forward
+            }
+            else {
+                currentDirection = Kitronik_Robotics_Board.MotorDirection.Reverse
+            }
+
+            // Function call for the Robotics Board motor drive with the previously set currentMotor and currentDirection
+            Kitronik_Robotics_Board.motorOn(currentMotor, currentDirection, 100)
+            basic.pause(20)
+
+            // This section progresses the stepStage depending on the user selected Stepper Motor direction and previous stepStage
+            switch (dir) 
+            {
+                case MotorDirection.Forward:
+                    if (stepStage == 4) 
                     {
-                        case MotorDirection.Forward:
-                            if (stepStage2 == 4) 
-                            {
-                                stepStage2 = 1
-                            }
-                            else 
-                            {
-                                stepStage2 += 1
-                            }
-                            break
-                        case MotorDirection.Reverse:
-                            if (stepStage2 == 1) 
-                            {
-                                stepStage2 = 4
-                            }
-                            else 
-                            {
-                                stepStage2 -= 1
-                            }
-                            break
+                        stepStage = 1
                     }
-                    stepCounter += 1
-                }
-                break 
+                    else 
+                    {
+                        stepStage += 1
+                    }
+                    break
+                case MotorDirection.Reverse:
+                    if (stepStage == 1) 
+                    {
+                        stepStage = 4
+                    }
+                    else 
+                    {
+                        stepStage -= 1
+                    }
+                    break
+            }    
+            stepCounter += 1
         }
     }
 }

@@ -28,6 +28,14 @@ Kitronik_Robotics_Board.servoWrite(Kitronik_Robotics_Board.Servos.Servo5, 0)
 ```
 (Note: For continuous rotation servos, setting the drive angle to 0 will turn the servo at max speed in one direction, and setting it to 180 will turn it at max speed in the other direction)
 
+## Settings
+
+This package contains a block for setting how many steps there are in a full rotation stepper motors being used:
+```blocks
+Kitronik_Robotics_Board.setStepperMotorSteps(Kitronik_Robotics_Board.StepperMotors.Stepper1, 200)
+```
+(Note: The default value for both Stepper 1 and 2 is 200 as this is the msot common number of steps in a full rotation)
+
 ## Other
 
 This package also contains an 'emergency stop' block which turns off all motor and all servo outputs at the same time:
@@ -40,3 +48,6 @@ Kitronik_Robotics_Board.allOff()
 MIT
 
 ## Supported Targets
+
+* for PXT/microbit
+(The metadata above is needed for package search.)
