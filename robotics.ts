@@ -131,7 +131,7 @@ namespace Kitronik_Robotics_Board
         buf[0] = PRESCALE_REG
         buf[1] = 0x85 //50Hz
         pins.i2cWriteBuffer(chipAddress, buf, false)
-        //Block write via the all leds register to set all of them to 90 degrees
+        //Block write via the all leds register to turn off all servo and motor outputs
         buf[0] = 0xFA
         buf[1] = 0x00
         pins.i2cWriteBuffer(chipAddress, buf, false)
@@ -139,7 +139,7 @@ namespace Kitronik_Robotics_Board
         buf[1] = 0x00
         pins.i2cWriteBuffer(chipAddress, buf, false)
         buf[0] = 0xFC
-        buf[1] = 0x66
+        buf[1] = 0x00
         pins.i2cWriteBuffer(chipAddress, buf, false)
         buf[0] = 0xFD
         buf[1] = 0x00
