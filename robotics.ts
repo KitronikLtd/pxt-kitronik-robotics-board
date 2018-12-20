@@ -173,6 +173,7 @@ namespace Kitronik_Robotics_Board
         let deg100 = degrees * 100
         let pwmVal100 = deg100 * SERVO_MULTIPLIER
         let pwmVal = pwmVal100 / 10000
+        pwmVal = Math.floor(pwmVal)
         pwmVal = pwmVal + SERVO_ZERO_OFFSET
         if (pwmVal > 0xFF) {
             highByte = true
