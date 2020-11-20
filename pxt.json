@@ -8,7 +8,9 @@
     },
     "files": [
         "README.md",
-        "robotics.ts"
+        "robotics.ts",
+        "_locales/nl/pxt-kitronik-robotics-board-jsdoc-strings-Dutch.json",
+        "_locales/nl/pxt-kitronik-robotics-board-strings-Dutch.json"
     ],
     "testFiles": [
         "tests.ts"
