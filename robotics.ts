@@ -200,10 +200,9 @@ namespace Kitronik_Robotics_Board
      */
     //% group=Servos
     //% subcategory=Servos
-    //% blockId=kitronik_I2Cservo_write
+    //% blockId=kitronik_I2Cservo_stop
     //% block="stop servo %Servo"
     //% weight=100 blockGap=8
-	//% degrees.min=0 degrees.max=180
     export function servoStop(servo: Servos): void {
         if (initalised == false) {
             secretIncantation()
