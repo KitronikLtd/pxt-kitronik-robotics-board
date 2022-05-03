@@ -201,7 +201,7 @@ namespace Kitronik_Robotics_Board
     //% group=Servos
     //% subcategory=Servos
     //% blockId=kitronik_I2Cservo_stop
-    //% block="stop servo %Servo"
+    //% block="stop %Servo"
     //% weight=100 blockGap=8
     export function servoStop(servo: Servos): void {
         if (initalised == false) {
