@@ -191,6 +191,31 @@ namespace Kitronik_Robotics_Board
         }
         pins.i2cWriteBuffer(chipAddress, buf, false)
     }
+	
+  /**
+     * Stops PWM on the requested channel - used to stop a 360 servo form moving 
+	 * If the PCA has not yet been initialised calls the initialisation routine.
+     * @param servo Which servo to stop
+	
+     */
+    //% group=Servos
+    //% subcategory=Servos
+    //% blockId=kitronik_I2Cservo_write
+    //% block="stop servo %Servo"
+    //% weight=100 blockGap=8
+	//% degrees.min=0 degrees.max=180
+    export function servoStop(servo: Servos): void {
+        if (initalised == false) {
+            secretIncantation()
+        }
+        let buf = pins.createBuffer(2)
+        buf[0] = servo
+        buf[1] = 0x00
+        pins.i2cWriteBuffer(chipAddress, buf, false)
+        buf[0] = servo + 1
+        buf[1] = 0x00
+        pins.i2cWriteBuffer(chipAddress, buf, false)
+    }
 
     /**
      * Sets the requested motor running in chosen direction at a set speed.
