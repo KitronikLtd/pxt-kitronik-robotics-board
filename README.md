@@ -27,6 +27,11 @@ Kitronik_Robotics_Board.servoWrite(Kitronik_Robotics_Board.Servos.Servo4, 180)
 Kitronik_Robotics_Board.servoWrite(Kitronik_Robotics_Board.Servos.Servo5, 0)
 ```
 (Note: For continuous rotation servos, setting the drive angle to 0 will turn the servo at max speed in one direction, and setting it to 180 will turn it at max speed in the other direction)
+To stop driving a servo use: 
+'''blocks
+Kitronik_Robotics_Board.servoStop(Kitronik_Robotics_Board.Servos.Servo4)
+'''
+This will stop a 360 servo rotating, and stop a 180 servo holding position. 
 
 ## Settings
 
