@@ -104,7 +104,7 @@ namespace Kitronik_Robotics_Board
         }
     }
 	
-	/**
+    /**
      * Adjusts the length of the servo control pulses, with a maximum reduction of 50%.
 	 * This block should be used if the connected servo will not respond to the 'set to 180 degrees' command.
 	 * Try reducing the value by small amounts and testing the servo until it correctly sets the angle to 180 degrees.
