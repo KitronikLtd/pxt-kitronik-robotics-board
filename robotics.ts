@@ -10,7 +10,7 @@ namespace Kitronik_Robotics_Board
     let MODE_1_REG = 0x00  //The mode 1 register address
     
     // If you wanted to write some code that stepped through the servos then this is the Base and size to do that 	
-	let SERVO_1_REG_BASE = 0x08 
+    let SERVO_1_REG_BASE = 0x08 
     let SERVO_REG_DISTANCE = 4
 	//To get the PWM pulses to the correct size and zero offset these are the default numbers. 
     let SERVO_MULTIPLIER = 226
@@ -68,12 +68,12 @@ namespace Kitronik_Robotics_Board
 
     // The Robotics board can be configured to use different I2C addresses, these are all listed here.
     // Board1 is the default value (set as the CHIP_ADDRESS)
-	export enum BoardAddresses{
-		Board1 = 0x6C,
+    export enum BoardAddresses{
+        Board1 = 0x6C,
         Board2 = 0x6D,
         Board3 = 0x6E,
         Board4 = 0x6F
-	}
+    }
 
     // chipAddress can be changed in 'JavaScript' mode if the I2C address of the board has been altered:
     // 'Kitronik_Robotics_Board.chipAddress = Kitronik_Robotics_Board.BoardAddresses.Boardx' ('x' is one of the BoardAddresses)
@@ -88,7 +88,7 @@ namespace Kitronik_Robotics_Board
     //not the widely reported 1-2mS 
     //that equates to multiplier of 226, and offset of 0x66
     // a better trim function that does the maths for the end user could be exposed, the basics are here 
-	// for reference
+    // for reference
     export function trimServoMultiplier(Value: number) {
         if (Value < 113) {
             SERVO_MULTIPLIER = 113
@@ -106,17 +106,17 @@ namespace Kitronik_Robotics_Board
 	
     /**
      * Adjusts the length of the servo control pulses, with a maximum reduction of 50%.
-	 * This block should be used if the connected servo will not respond to the 'set to 180 degrees' command.
-	 * Try reducing the value by small amounts and testing the servo until it correctly sets the angle to 180 degrees.
+     * This block should be used if the connected servo will not respond to the 'set to 180 degrees' command.
+     * Try reducing the value by small amounts and testing the servo until it correctly sets the angle to 180 degrees.
      * @param reduction percentage of the servo pulse length, eg: 5
      */
     //% subcategory=Settings
     //% group=Settings
-    //% blockId=kitronik_reduce_servo_multiplier
-    //% block="reduce servo pulse length by |%reduction| \%"
+    //% blockId=kitronik_reduce_servo_pulse
+    //% block="reduce servo pulse length by |%reduction| %"
     //% weight=100 blockGap=8
-	//% reduction.min=0 reduction.max=50
-    export function reduceServoMultiplier(reduction: number): void {
+    //% reduction.min=0 reduction.max=50
+    export function reduceServoPulse(reduction: number): void {
         trimServoMultiplier(226 * (reduction / 100))
     }
 	
@@ -135,11 +135,11 @@ namespace Kitronik_Robotics_Board
         }
     }
 
-	/*
-		This secret incantation sets up the PCA9865 I2C driver chip to be running at 50Hz pulse repetition, and then sets the 16 output registers to 1.5mS - centre travel.
-		It should not need to be called directly be a user - the first servo or motor write will call it automatically.
-	*/
-	function secretIncantation(): void {
+    /*
+     * This secret incantation sets up the PCA9865 I2C driver chip to be running at 50Hz pulse repetition, and then sets the 16 output registers to 1.5mS - centre travel.
+     * It should not need to be called directly be a user - the first servo or motor write will call it automatically.
+     */
+    function secretIncantation(): void {
         let buf = pins.createBuffer(2)
 
         //Should probably do a soft reset of the I2C chip here when I figure out how
@@ -171,9 +171,9 @@ namespace Kitronik_Robotics_Board
 	
     /**
      * Sets the requested servo to the reguested angle.
-	 * If the PCA has not yet been initialised calls the initialisation routine.
+     * If the PCA has not yet been initialised calls the initialisation routine.
      * @param servo Which servo to set
-	 * @param degrees the angle to set the servo to
+     * @param degrees the angle to set the servo to
      */
     //% group=Servos
     //% subcategory=Servos
@@ -209,11 +209,10 @@ namespace Kitronik_Robotics_Board
         pins.i2cWriteBuffer(chipAddress, buf, false)
     }
 	
-	/**
+    /**
      * Stops PWM on the requested channel - used to stop a 360 servo form moving 
-	 * If the PCA has not yet been initialised calls the initialisation routine.
+     * If the PCA has not yet been initialised calls the initialisation routine.
      * @param servo Which servo to stop
-	
      */
     //% group=Servos
     //% subcategory=Servos
