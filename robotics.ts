@@ -104,22 +104,6 @@ namespace Kitronik_Robotics_Board
         }
     }
 	
-    /**
-     * Adjusts the length of the servo control pulses, with a maximum reduction of 50%.
-     * This block should be used if the connected servo will not respond to the 'set to 180 degrees' command.
-     * Try reducing the value by small amounts and testing the servo until it correctly sets the angle to 180 degrees.
-     * @param reduction percentage of the servo pulse length, eg: 5
-     */
-    //% subcategory=Settings
-    //% group=Settings
-    //% blockId=kitronik_reduce_servo_pulse
-    //% block="reduce servo pulse length by |%reduction| %"
-    //% weight=100 blockGap=8
-    //% reduction.min=0 reduction.max=50
-    export function reduceServoPulse(reduction: number): void {
-        trimServoMultiplier(226 * (reduction / 100))
-    }
-	
     export function trimServoZeroOffset(Value: number) {
         if (Value < 0x66) {
             SERVO_ZERO_OFFSET = 0x66
@@ -418,6 +402,22 @@ namespace Kitronik_Robotics_Board
         } 
 
         turnStepperMotor(stepper, dir, angleToSteps)
+    }
+	
+    /**
+     * Adjusts the length of the servo control pulses, with a maximum reduction of 50%.
+     * This block should be used if the connected servo will not respond to the 'set to 180 degrees' command.
+     * Try reducing the value by small amounts and testing the servo until it correctly sets the angle to 180 degrees.
+     * @param reduction percentage of the servo pulse length, eg: 5
+     */
+    //% subcategory=Settings
+    //% group=Settings
+    //% blockId=kitronik_reduce_servo_pulse
+    //% block="reduce servo pulse length by |%reduction| percent"
+    //% weight=50 blockGap=8
+    //% reduction.min=0 reduction.max=50
+    export function reduceServoPulse(reduction: number): void {
+        trimServoMultiplier(226 * (reduction / 100))
     }
 
     /**
