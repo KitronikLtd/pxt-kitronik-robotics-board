@@ -417,7 +417,7 @@ namespace Kitronik_Robotics_Board
     //% weight=50 blockGap=8
     //% reduction.min=0 reduction.max=50
     export function reduceServoPulse(reduction: number): void {
-        trimServoMultiplier(226 * (reduction / 100))
+        trimServoMultiplier(226 - (226 * (reduction / 100)))
     }
 
     /**
