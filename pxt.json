@@ -1,6 +1,6 @@
 {
     "name": "pxt-kitronik-robotics-board",
-    "version": "0.0.10",
+    "version": "0.1.0",
     "description": "Blocks for driving the Kitronik All-in-one Robotics Board",
     "license": "MIT",
     "dependencies": {

@@ -3,16 +3,16 @@
  */
 //% weight=100 color=#00A654 icon="\uf1b6" block="Robotics"
 //% groups='["Servos", "Motors"]'
-namespace Kitronik_Robotics_Board
-{	
+namespace Kitronik_Robotics_Board {
     //Constants 
     let PRESCALE_REG = 0xFE //the prescale register address
+    let PRESCALE_VAL = 0x85 // 50Hz
     let MODE_1_REG = 0x00  //The mode 1 register address
-    
+
     // If you wanted to write some code that stepped through the servos then this is the Base and size to do that 	
-    let SERVO_1_REG_BASE = 0x08 
+    let SERVO_1_REG_BASE = 0x08
     let SERVO_REG_DISTANCE = 4
-	//To get the PWM pulses to the correct size and zero offset these are the default numbers. 
+    //To get the PWM pulses to the correct size and zero offset these are the default numbers. 
     let SERVO_MULTIPLIER = 226
     let SERVO_ZERO_OFFSET = 0x66
 
@@ -68,7 +68,7 @@ namespace Kitronik_Robotics_Board
 
     // The Robotics board can be configured to use different I2C addresses, these are all listed here.
     // Board1 is the default value (set as the CHIP_ADDRESS)
-    export enum BoardAddresses{
+    export enum BoardAddresses {
         Board1 = 0x6C,
         Board2 = 0x6D,
         Board3 = 0x6E,
@@ -103,7 +103,7 @@ namespace Kitronik_Robotics_Board
 
         }
     }
-	
+
     export function trimServoZeroOffset(Value: number) {
         if (Value < 0x66) {
             SERVO_ZERO_OFFSET = 0x66
@@ -125,13 +125,17 @@ namespace Kitronik_Robotics_Board
      */
     function secretIncantation(): void {
         let buf = pins.createBuffer(2)
+        let reset = pins.createBuffer(1)
 
-        //Should probably do a soft reset of the I2C chip here when I figure out how
+        // Soft reset of the I2C chip
+        reset[0] = 0x06
+        pins.i2cWriteBuffer(0x00, reset, false)
 
         // First set the prescaler to 50 hz
         buf[0] = PRESCALE_REG
-        buf[1] = 0x85 //50Hz
+        buf[1] = PRESCALE_VAL
         pins.i2cWriteBuffer(chipAddress, buf, false)
+
         //Block write via the all leds register to turn off all servo and motor outputs
         buf[0] = 0xFA
         buf[1] = 0x00
@@ -145,14 +149,16 @@ namespace Kitronik_Robotics_Board
         buf[0] = 0xFD
         buf[1] = 0x00
         pins.i2cWriteBuffer(chipAddress, buf, false)
-        //Set the mode 1 register to come out of sleep
+
+        // Set the mode 1 register to come out of sleep
         buf[0] = MODE_1_REG
         buf[1] = 0x01
         pins.i2cWriteBuffer(chipAddress, buf, false)
+
         //set the initalised flag so we dont come in here again automatically
         initalised = true
     }
-	
+
     /**
      * Sets the requested servo to the reguested angle.
      * If the PCA has not yet been initialised calls the initialisation routine.
@@ -164,7 +170,7 @@ namespace Kitronik_Robotics_Board
     //% blockId=kitronik_I2Cservo_write
     //% block="set%Servo|to%degrees|degrees"
     //% weight=100 blockGap=8
-	//% degrees.min=0 degrees.max=180
+    //% degrees.min=0 degrees.max=180
     export function servoWrite(servo: Servos, degrees: number): void {
         if (initalised == false) {
             secretIncantation()
@@ -192,7 +198,7 @@ namespace Kitronik_Robotics_Board
         }
         pins.i2cWriteBuffer(chipAddress, buf, false)
     }
-	
+
     /**
      * Stops PWM on the requested channel - used to stop a 360 servo form moving 
      * If the PCA has not yet been initialised calls the initialisation routine.
@@ -250,7 +256,7 @@ namespace Kitronik_Robotics_Board
                 pins.i2cWriteBuffer(chipAddress, buf, false)
                 if (highByte) {
                     buf[0] = motor + 5
-                    buf[1] = outputVal/256
+                    buf[1] = outputVal / 256
                 }
                 else {
                     buf[0] = motor + 5
@@ -276,7 +282,7 @@ namespace Kitronik_Robotics_Board
 
                 if (highByte) {
                     buf[0] = motor + 1
-                    buf[1] = outputVal/256
+                    buf[1] = outputVal / 256
                 }
                 else {
                     buf[0] = motor + 1
@@ -291,8 +297,8 @@ namespace Kitronik_Robotics_Board
                 buf[1] = 0x00
                 pins.i2cWriteBuffer(chipAddress, buf, false)
                 break
-        }            
-    }   
+        }
+    }
 
     /**
      * Turns off the specified motor.
@@ -305,7 +311,7 @@ namespace Kitronik_Robotics_Board
     //%block="turn off %motor"
     export function motorOff(motor: Motors): void {
 
-    	let buf = pins.createBuffer(2)
+        let buf = pins.createBuffer(2)
 
         buf[0] = motor
         buf[1] = 0x00
@@ -372,6 +378,23 @@ namespace Kitronik_Robotics_Board
     }
 
     /**
+     * Adjusts the servos.
+     * This block should be used if the connected servo does not respond correctly to the 'set angle' command.
+     * Try changing the value by small amounts and testing the servo until it correctly sets to the angle.
+     * @param change , eg: -13
+     */
+    //% subcategory=Settings
+    //% group=Settings
+    //% blockId=kitronik_adjust_servos
+    //% block="adjust servos by |%change|"
+    //% weight=50 blockGap=8
+    //% change.min=-25 change.max=25
+    export function adjustServos(change: number): void {
+        PRESCALE_VAL = 0x85 + change
+        secretIncantation()
+    }
+
+    /**
      * Sets the requested stepper motor to a chosen angle relative to the start position.
      * if the PCA has not yet been initialised calls the initialisation routine.
      * @param stepper which stepper motor to turn on
@@ -384,12 +407,10 @@ namespace Kitronik_Robotics_Board
     //% block="%stepper|turn %dir|%angle|degrees"
     //% weight=90 blockGap=8
     //% angle.min=1 angle.max=360
-    export function stepperMotorTurnAngle(stepper: StepperMotors, dir: MotorDirection, angle: number): void 
-    {
+    export function stepperMotorTurnAngle(stepper: StepperMotors, dir: MotorDirection, angle: number): void {
         let angleToSteps = 0
 
-        if (initalised == false) 
-        {
+        if (initalised == false) {
             secretIncantation()
         }
 
@@ -399,7 +420,7 @@ namespace Kitronik_Robotics_Board
         }
         else {
             angleToSteps = pins.map(angle, 1, 360, 1, stepper2Steps)
-        } 
+        }
 
         turnStepperMotor(stepper, dir, angleToSteps)
     }
@@ -416,10 +437,8 @@ namespace Kitronik_Robotics_Board
     //% blockId=kitronik_stepper_motor_turn_steps
     //% block="%stepper|turn %dir|%steps|steps"
     //% weight=85 blockGap=8
-    export function stepperMotorTurnSteps(stepper: StepperMotors, dir: MotorDirection, stepperSteps: number): void 
-    {
-        if (initalised == false) 
-        {
+    export function stepperMotorTurnSteps(stepper: StepperMotors, dir: MotorDirection, stepperSteps: number): void {
+        if (initalised == false) {
             secretIncantation()
         }
 
@@ -458,7 +477,7 @@ namespace Kitronik_Robotics_Board
 
             // This section uses the current stepStage to set which direction the Robotics Board Motor Output should be driven
             if (stepStage == 1 || stepStage == 4) {
-                 currentDirection = Kitronik_Robotics_Board.MotorDirection.Forward
+                currentDirection = Kitronik_Robotics_Board.MotorDirection.Forward
             }
             else {
                 currentDirection = Kitronik_Robotics_Board.MotorDirection.Reverse
@@ -469,29 +488,24 @@ namespace Kitronik_Robotics_Board
             basic.pause(20)
 
             // This section progresses the stepStage depending on the user selected Stepper Motor direction and previous stepStage
-            switch (dir) 
-            {
+            switch (dir) {
                 case MotorDirection.Forward:
-                    if (stepStage == 4) 
-                    {
+                    if (stepStage == 4) {
                         stepStage = 1
                     }
-                    else 
-                    {
+                    else {
                         stepStage += 1
                     }
                     break
                 case MotorDirection.Reverse:
-                    if (stepStage == 1) 
-                    {
+                    if (stepStage == 1) {
                         stepStage = 4
                     }
-                    else 
-                    {
+                    else {
                         stepStage -= 1
                     }
                     break
-            }    
+            }
             stepCounter += 1
         }
     }
