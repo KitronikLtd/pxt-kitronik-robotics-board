@@ -6,7 +6,7 @@
 namespace Kitronik_Robotics_Board {
     //Constants 
     let PRESCALE_REG = 0xFE //the prescale register address
-    let PRESCALE_VAL = 0x85 // 50Hz
+    let PRESCALE_VAL = 0x7D // 50Hz
     let MODE_1_REG = 0x00  //The mode 1 register address
 
     // If you wanted to write some code that stepped through the servos then this is the Base and size to do that 	
@@ -390,7 +390,7 @@ namespace Kitronik_Robotics_Board {
     //% weight=50 blockGap=8
     //% change.min=-25 change.max=25
     export function adjustServos(change: number): void {
-        PRESCALE_VAL = 0x85 + change
+        PRESCALE_VAL = 0x7D + change
         secretIncantation()
     }
 
