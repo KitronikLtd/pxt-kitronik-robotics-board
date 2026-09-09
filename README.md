@@ -1,6 +1,6 @@
 # pxt-kitronik-robotics-board
 
-Custom blocks for www.kitronik.co.uk/5641 All-in-one Robotics Board for micro:bit
+Custom blocks for www.kitronik.co.uk/5693 All-in-one Robotics Board for micro:bit
 
 ## Motors
 
